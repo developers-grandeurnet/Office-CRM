@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #047857;
+  --color-primary-hover: #065f46;
+  --color-surface: #ffffff;
+  --color-background: #f3f7f4;
+  --color-border: #d7e3dc;
+}
+
+@layer base {
+  body {
+    @apply text-slate-900 antialiased font-sans;
+    background-color: #f3f7f4;
+    background-image:
+      radial-gradient(ellipse 70% 45% at 0% -10%, rgba(16, 185, 129, 0.18), transparent 55%),
+      radial-gradient(ellipse 50% 35% at 100% 0%, rgba(245, 158, 11, 0.12), transparent 50%),
+      linear-gradient(180deg, #ecfdf5 0%, #f8fafc 38%, #f3f7f4 100%);
+    background-attachment: fixed;
+  }
+}
+
+/* Auth login shell */
+.auth-body {
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+.auth-display {
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+.auth-script {
+  font-family: "Caveat", cursive;
+}
+@keyframes auth-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.auth-rise {
+  animation: auth-rise 0.65s ease-out both;
+}
+.auth-rise-delay {
+  animation: auth-rise 0.65s ease-out 0.1s both;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
