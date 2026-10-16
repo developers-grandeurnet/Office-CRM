@@ -50,8 +50,8 @@ const refreshLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders:   false,
     keyGenerator: (req) => {
-        const token = req.cookies?.refreshToken || "";
-        return token ? `refresh:${token.slice(-24)}` : `refresh-ip:${ipKeyGenerator(req.ip)}`;
+        const token = req.cookies?.refreshToken || req.body?.refreshToken || "";
+        return token ? `refresh:${String(token).slice(-24)}` : `refresh-ip:${ipKeyGenerator(req.ip)}`;
     },
     message: {
         success: false,

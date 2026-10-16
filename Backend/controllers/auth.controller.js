@@ -133,7 +133,11 @@ const login = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "Login successful",
-            data: { user: userData },
+            data: {
+                user: userData,
+                accessToken,
+                refreshToken,
+            },
         });
     } catch (error) {
         next(error);
@@ -145,7 +149,7 @@ const login = async (req, res, next) => {
 // @access  Public
 const refreshToken = async (req, res, next) => {
     try {
-        const token = req.cookies.refreshToken;
+        const token = req.cookies.refreshToken || req.body?.refreshToken;
         if (!token) {
             return res.status(401).json({ success: false, message: "No refresh token provided" });
         }
@@ -191,6 +195,10 @@ const refreshToken = async (req, res, next) => {
         res.status(200).json({
             success: true,
             message: "Token refreshed",
+            data: {
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+            },
         });
     } catch (error) {
         next(error);

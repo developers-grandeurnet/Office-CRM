@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import Cookies from "js-cookie";
+import api from "../services/api";
+import { clearAuthTokens, getAccessToken, setAuthTokens } from "../services/authToken";
 
 const AuthContext = createContext();
 
@@ -8,29 +10,28 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize auth state from cookies on mount
   useEffect(() => {
     const initializeAuth = async () => {
       Cookies.remove("token");
+      const accessToken = getAccessToken();
+      if (!accessToken) {
+        setUser(null);
+        setToken(null);
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}auth/me`, { credentials: "include" });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.data);
-          setToken("session");
-          Cookies.set("user", JSON.stringify(data.data), { expires: 1 });
-        } else {
-          setUser(null);
-          setToken(null);
-          Cookies.remove("user");
-        }
+        const response = await api.get("auth/me");
+        setUser(response.data.data);
+        setToken(accessToken);
+        Cookies.set("user", JSON.stringify(response.data.data), { expires: 1 });
       } catch (e) {
         console.error("Failed to fetch user profile", e);
-        const savedUser = Cookies.get("user");
-        if (savedUser) {
-          setUser(JSON.parse(savedUser));
-          setToken("session");
-        }
+        clearAuthTokens();
+        setUser(null);
+        setToken(null);
+        Cookies.remove("user");
       }
       setIsLoading(false);
     };
@@ -38,9 +39,14 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = (userData) => {
+  const login = (userData, tokens = {}) => {
+    if (tokens.accessToken) {
+      setAuthTokens(tokens.accessToken, tokens.refreshToken || "");
+      setToken(tokens.accessToken);
+    } else {
+      setToken(getAccessToken() || "session");
+    }
     setUser(userData);
-    setToken("session");
     Cookies.remove("token");
     Cookies.set("user", JSON.stringify(userData), { expires: 1 });
   };
@@ -48,6 +54,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
+    clearAuthTokens();
     Cookies.remove("token");
     Cookies.remove("user");
   };
@@ -63,7 +70,6 @@ export const AuthProvider = ({ children }) => {
     if (user.userType === "ADMIN") return true;
     if (!permissions || permissions.length === 0) return true;
     const permList = Array.isArray(permissions) ? permissions : [permissions];
-    // Existing clients without saved perms keep full portal access
     const granted = user.userType === "CLIENT" && !(user.permissions || []).length
       ? ["CLIENT_VIEW_PROJECTS", "CLIENT_SUPPORT"]
       : (user.permissions || []);

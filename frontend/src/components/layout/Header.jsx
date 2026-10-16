@@ -2,7 +2,7 @@ import { Menu, LogOut, ChevronDown, UserRound } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 import { NotificationBell } from "./NotificationBell";
 
 export function Header({ setMobileMenuOpen, isMobile }) {
@@ -24,13 +24,7 @@ export function Header({ setMobileMenuOpen, isMobile }) {
 
   const handleLogout = async () => {
     try {
-      if (user) {
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}auth/logout`,
-          {},
-          { withCredentials: true }
-        );
-      }
+      if (user) await api.post("auth/logout");
     } catch (error) {
       console.error("Logout error:", error);
     } finally {

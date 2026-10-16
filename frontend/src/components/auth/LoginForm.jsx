@@ -59,9 +59,11 @@ export const LoginForm = () => {
       );
 
       const responseData = response.data;
-      const { user } = responseData.data || {};
+      const { user, accessToken, refreshToken } = responseData.data || {};
 
-      if (user) {
+      if (user && accessToken) {
+        login(user, { accessToken, refreshToken });
+      } else if (user) {
         login(user);
       } else {
         throw new Error("Invalid response from server");
