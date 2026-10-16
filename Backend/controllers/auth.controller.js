@@ -24,11 +24,15 @@ const accessMaxAge = () => {
     return amount * unit;
 };
 
-const cookieBase = () => ({
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-});
+const cookieBase = () => {
+    const production = process.env.NODE_ENV === "production";
+    // Vercel frontend + Render backend are different sites — cookies need SameSite=None; Secure
+    return {
+        httpOnly: true,
+        secure: production,
+        sameSite: production ? "none" : "lax",
+    };
+};
 
 const setAuthCookies = (res, accessToken, refreshToken) => {
     const base = cookieBase();
